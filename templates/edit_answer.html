@@ -1,0 +1,12 @@
+{% extends 'index.html' %}
+{% block edit_answer %}
+
+    <a href="/list">Back to questions list</a>
+    <h2>{{ data.get('title','') }}</h2>
+
+    <form action="/answer/{{ id }}/edit" method="POST">
+        <label for="message">Message:</label><br>
+        <textarea id="message" name="message" rows="5" cols="40">{{ data.get('message','') }}</textarea><br><br>
+        <button type="submit">Update Answer</button>
+    </form>
+{% endblock %}

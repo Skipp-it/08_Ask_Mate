@@ -1,0 +1,19 @@
+{% extends 'index.html' %}
+
+{% block content %}
+
+
+<body>
+    <h4><a href="/list">Home</a></h4>
+    <div id="subtitle_name"><h2>Add comment</h2></div>
+
+
+    <form action="/question/{{ id }}/new-comment" method="POST"><br><br>
+        <textarea id="add-comment" name="add-comment" placeholder="Add comment" rows="5" cols="40"></textarea><br><br>
+        <button type="submit">Submit comment</button>
+    </form>
+
+
+</body>
+
+{% endblock %}

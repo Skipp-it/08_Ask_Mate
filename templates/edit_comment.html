@@ -1,0 +1,17 @@
+{% extends 'index.html' %}
+{% block content %}
+
+
+<h2>Update comment</h2>
+
+
+
+    <form action="/comment/{{ comment_id}}/edit" method="POST">
+        <label for="edit-comment-answer">Message:</label><br>
+        <textarea id="edit-comment-answer" name="edit-comment-answer"  rows="5" cols="40">{{ data.get('message','') }}</textarea><br>
+        <button type="submit">Update comment</button>
+    </form>
+
+
+{% endblock %}
+

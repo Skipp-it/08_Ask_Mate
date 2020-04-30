@@ -1,0 +1,41 @@
+{% extends 'index.html' %}
+
+
+{% block content %}
+<a href="/list">Home</a>
+
+    <h1>Result questions</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Submission time</th>
+            <th>View number</th>
+            <th>Vote number</th>
+            <th>Title</th>
+            <th>Message</th>
+            <th>Image</th>
+            <th>Answer submission time</th>
+            <th>Answer vote number</th>
+            <th>Answer message</th>
+        </tr>
+        {% for question in search_text %}
+        <tr>
+            <td>{{ question.id }}</td>
+            <td>{{ question.submission_time }}</td>
+            <td>{{ question.view_number }}</td>
+            <td>{{ question.vote_number }}</td>
+            <td>{{ question.title | replace (phrase, '<mark>' + phrase + '</mark>') | safe }}</td>
+            <td>{{ question.message | replace (phrase, '<mark>' + phrase + '</mark>') | safe }}</td>
+            <td>{{ question.image }}</td>
+            {% if question.answer_id != "None" %}
+                <td>{{ question.answer_submission_time }}</td>
+                <td>{{ question.answer_vote_number }}</td>
+                <td>{{ question.answer_message | replace (phrase, '<mark>' + phrase + '</mark>') | safe }}</td>
+            {% endif %}
+
+        </tr>
+        {%  endfor %}
+    </table>
+
+
+{% endblock %}

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Ask Mate</title>
+    {% block header %}<div id="header_name"><h1><a href="/" id="header_name">Team Team Blog</a></h1></div>{% endblock %}
+</head>
+<body>
+
+    {% include 'navbar.html' %}
+
+    {% block content %}
+
+    {% endblock %}
+
+
+
+</body>
+
+{% block footer %}{% endblock %}
+
+</html>
