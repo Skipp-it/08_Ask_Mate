@@ -5,6 +5,8 @@ from datetime import datetime
 app = Flask(__name__)
 
 
+
+
 @app.route("/")
 def main_page():
     file_data = data_manager.get_latest_questions()
@@ -13,7 +15,7 @@ def main_page():
 
 @app.route("/list")
 def all_questions():
-    questions = data_manager.get_data_by_table('question')
+    questions = data_manager.get_table_question()
     ordered_direction = "desc"
     ordered_by = "submission_time"
     args = request.args
@@ -35,20 +37,20 @@ def all_questions():
                            ordered_direction=ordered_direction, ordered_by=ordered_by)
 
 
-@app.route('/question/<question_id>',  methods=['GET','POST'])
+@app.route('/question/<question_id>',  methods=['GET', 'POST'])
 def question(question_id):
     if request.method == 'POST':
-        tag=request.form.get('add_tag')
+        tag = request.form.get('add_tag')
         try:
             data_manager.update_question_tags(question_id, tag)
         except:
-            return redirect('/question/'+str(question_id)+'/new-tag')
-    comment_id_answer = data_manager.get_data_by_table('comment')
-    comment_id_question = data_manager.get_data_by_id('comment', 'question_id', question_id)
-    file_data = data_manager.get_data_by_id('question', 'id', question_id)[0]
+            return redirect('/question/' + str(question_id) + '/new-tag')
+    comment_id_answer = data_manager.get_table_comment()
+    comment_id_question = data_manager.get_comment_by_question_id(question_id)
+    file_data = data_manager.get_question_by_id(question_id)[0]
     new = file_data.get('view_number', '') + 1
-    data_manager.update_number('question', 'view_number', new, question_id)
-    answers = data_manager.get_data_by_id('answer', 'question_id', question_id)
+    data_manager.update_view_number_qu(new, question_id)
+    answers = data_manager.get_answer_by_question_id(question_id)
     tags = data_manager.tags(question_id)
     return render_template('question.html', id=question_id, data=file_data, answers=answers,
                            comment_id_question=comment_id_question, comment_id_answer=comment_id_answer, tags=tags)
@@ -81,41 +83,41 @@ def post_new_answer(question_id):
 
 @app.route("/question/<question_id>/vote_up")
 def Q_vote_up(question_id):
-    file_data=data_manager.get_data_by_id('question', 'id', question_id)[0]
+    file_data = data_manager.get_question_by_id(question_id)[0]
     new=file_data.get('vote_number', '') + 1
-    data_manager.update_number('question', 'vote_number', new,question_id)
+    data_manager.update_vote_number_qu(new, question_id)
     return redirect('/list')
 
 
 @app.route("/question/<question_id>/vote_down")
 def Q_vote_down(question_id):
-    file_data=data_manager.get_data_by_id('question', 'id', question_id)[0]
+    file_data = data_manager.get_question_by_id(question_id)[0]
     new=file_data.get('vote_number', '') - 1
-    data_manager.update_number('question', 'vote_number', new,question_id)
+    data_manager.update_vote_number_qu(new, question_id)
     return redirect('/list')
 
 
 @app.route("/answer/<answer_id>/vote_up")
 def A_vote_up(answer_id):
-    file_data = data_manager.get_data_by_id('answer', 'id', answer_id)[0]
+    file_data = data_manager.get_answer_by_id(answer_id)[0]
     new = file_data.get('vote_number', '') + 1
-    question_id = file_data.get('question_id','')
-    data_manager.update_number('answer', 'vote_number', new, answer_id)
-    question_data=data_manager.get_data_by_id('question', 'id', question_id)[0]
+    question_id = file_data.get('question_id', '')
+    data_manager.update_vote_number_an(new, answer_id)
+    question_data = data_manager.get_question_by_id(question_id)[0]
     new_view=question_data.get('view_number', '') - 1
-    data_manager.update_number('question', 'view_number', new_view, question_id)
+    data_manager.update_view_number_qu(new_view, question_id)
     return redirect('/question/'+ str(question_id))
 
 
 @app.route("/answer/<answer_id>/vote_down")
 def A_vote_down(answer_id):
-    file_data = data_manager.get_data_by_id('answer', 'id', answer_id)[0]
+    file_data = data_manager.get_answer_by_id(answer_id)[0]
     new = file_data.get('vote_number', '') - 1
     question_id = file_data.get('question_id', '')
-    data_manager.update_number('answer', 'vote_number', new, answer_id)
-    question_data=data_manager.get_data_by_id('question', 'id', question_id)[0]
+    data_manager.update_vote_number_an(new, answer_id)
+    question_data = data_manager.get_question_by_id(question_id)[0]
     new_view=question_data.get('view_number', '') - 1
-    data_manager.update_number('question', 'view_number', new_view, question_id)
+    data_manager.update_view_number_qu(new_view, question_id)
     return redirect('/question/' + str(question_id))
 
 
@@ -135,26 +137,24 @@ def add_question():
 
 @app.route('/question/<question_id>/delete')
 def delete_question(question_id):
-    data_manager.delete_from_table_by_id('question', question_id)
+    data_manager.delete_from_question_by_id(question_id)
     return redirect("/list")
 
 
 @app.route('/question/<question_id>/edit', methods=["GET", "POST"])
 def edit_question(question_id):
-    file_data=data_manager.get_data_by_id('question', 'id', question_id)[0]
+    file_data = data_manager.get_question_by_id(question_id)[0]
     if request.method == 'POST':
-        data_manager.update_data('question', 'title', request.form.get('title'), question_id)
-        data_manager.update_data('question', 'message', request.form.get('message'), question_id)
-        data_manager.update_data('question', 'image', request.form.get('image'), question_id)
+        data_manager.update_data_question(request.form.get('title'), request.form.get('message'), request.form.get('image'), question_id)
         return redirect('/list')
     return render_template('edit.html', id=question_id, data=file_data)
 
 
 @app.route('/answer/<answer_id>/delete')
 def delete_answer(answer_id):
-    file_data = data_manager.get_data_by_id('answer', 'id', answer_id)[0]
+    file_data = data_manager.get_answer_by_id(answer_id)[0]
     question_id = file_data.get('question_id', '')
-    data_manager.delete_from_table_by_id('answer', answer_id)
+    data_manager.delete_from_answer_by_id(answer_id)
     return redirect("/question/" + str(question_id))
 
 
@@ -173,7 +173,7 @@ def new_comment_answer(answer_id):
         submission_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         edited_count = 0
         data_manager.comment_answer(answer_id, message, submission_time, edited_count)
-        file_data = data_manager.get_data_by_id('answer', 'id', answer_id)[0]
+        file_data = data_manager.get_answer_by_id(answer_id)[0]
         question_id = file_data.get('question_id', '')
         return redirect('/question/' + str(question_id))
     return render_template('comment-answer.html', id=answer_id)
@@ -198,17 +198,17 @@ def delete_tag(question_id, tag_id):
 
 @app.route("/comment/<comment_id>/edit", methods=['POST', 'GET'])
 def edit_comment(comment_id):
-    file_data = data_manager.get_data_by_id('comment', 'id', comment_id)[0]
+    file_data = data_manager.get_comment_by_id(comment_id)[0]
     question_id = file_data.get('question_id', '')
     if question_id is None:
-        answer_id=file_data.get('answer_id', '')
-        data2 = data_manager.get_data_by_id('answer', 'id', answer_id)[0]
-        question_id=data2.get('question_id', '')
+        answer_id = file_data.get('answer_id', '')
+        data2 = data_manager.get_answer_by_id(answer_id)[0]
+        question_id = data2.get('question_id', '')
     if request.method == 'POST':
-        data=data_manager.get_edit_number(comment_id)[0]
-        value=data.get('edited_count','')
+        data = data_manager.get_edit_number(comment_id)[0]
+        value = data.get('edited_count', '')
         data_manager.update_edit_number(value, comment_id)
-        data_manager.update_data('comment', 'message', request.form.get('edit-comment-answer'), comment_id)
+        data_manager.update_data_comment(request.form.get('edit-comment-answer'), comment_id)
         return redirect('/question/' + str(question_id))
     return render_template('edit_comment.html', comment_id=comment_id, data=file_data)
 
@@ -216,11 +216,11 @@ def edit_comment(comment_id):
 
 @app.route("/comment/<comment_id>/delete", methods=['POST', 'GET'])
 def delete_comment(comment_id):
-    data = data_manager.get_data_by_id('comment', 'id', comment_id)[0]
-    question_id=data.get('question_id','')
+    data = data_manager.get_comment_by_id(comment_id)[0]
+    question_id = data.get('question_id', '')
     if question_id is None:
-        answer_id=data.get('answer_id','')
-        data2 = data_manager.get_data_by_id('answer', 'id', answer_id)[0]
+        answer_id = data.get('answer_id', '')
+        data2 = data_manager.get_answer_by_id(answer_id)[0]
         question_id = data2.get('question_id', '')
     data_manager.delete_comment(comment_id)
     return redirect('/question/' + str(question_id))

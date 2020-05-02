@@ -4,94 +4,203 @@ import database_common
 
 
 @database_common.connection_handler
-def get_data_by_table(cursor: RealDictCursor, table: str) -> list:
+def get_table_question(cursor: RealDictCursor) -> list:
     """
-    :param cursor:
-    RealDictCursor
-    :param table:
-    table name for inquery
     :return:
-    all data from specified table
+    all data from table question
     """
-    query = f"""
+    query = """
         SELECT *
-        FROM {table}
+        FROM question
         """
     cursor.execute(query)
     return cursor.fetchall()
 
+
 @database_common.connection_handler
-def delete_from_table_by_id(cursor: RealDictCursor, table: str, id: int) -> list:
+def get_table_comment(cursor: RealDictCursor) -> list:
+    """
+    :return:
+    all data from table comment
+    """
+    query = """
+        SELECT *
+        FROM comment
+        """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+
+@database_common.connection_handler
+def delete_from_question_by_id(cursor: RealDictCursor, id: int) -> list:
     """
     :param cursor:
     RealDictCursor
-    :param table:
-    enter table for deleting data
     :param id:
     select the id for the delete
     :return:
     deletes line for chosen id
     """
-    query=f"""
-        DELETE FROM {table}
-        WHERE id={id}
+    query = """
+        DELETE FROM question
+        WHERE id = %(id)s
     """
-    cursor.execute(query)
+    args = {'id': id}
+    cursor.execute(query, args)
     return "Id deleted"
 
+
 @database_common.connection_handler
-def get_data_by_id(cursor: RealDictCursor, table: str,column:str, id: int) -> list:
+def delete_from_answer_by_id(cursor: RealDictCursor, id: int) -> list:
     """
     :param cursor:
     RealDictCursor
-    :param table:
-    table name for inquery
+    :param id:
+    select the id for the delete
+    :return:
+    deletes line for chosen id
+    """
+    query = """
+        DELETE FROM answer
+        WHERE id = %(id)s
+    """
+    args = {'id': id}
+    cursor.execute(query, args)
+    return "Id deleted"
+
+
+@database_common.connection_handler
+def get_question_by_id(cursor: RealDictCursor, id: int) -> list:
+    """
     :param id:
     enter id for desired data
     :return:
-    data form selected table by selected id
+    data from question table by selected id
     """
-    query = f"""
+    query = """
             SELECT *
-            FROM {table}
-            WHERE {column} = {id}
+            FROM question
+            WHERE id = %(id)s
             """
-    cursor.execute(query)
+    args = {'id': id}
+    cursor.execute(query, args)
     return cursor.fetchall()
 
 
 @database_common.connection_handler
-def write_question(cursor: RealDictCursor, submission_time: str, view_number: int,
-                   vote_number:int, title:str, message: str, image: str) -> list:
+def get_answer_by_id(cursor: RealDictCursor, id: int) -> list:
     """
     :param cursor:
     RealDictCursor
-    :param table:
-    enter a table for inserting data
-    :param column:
-    May be one or many columns name for which the values are sent to database
-    :param value:
-    May be one or many values name for which the columns were chosen to be sent to database
+    :param id:
+    enter answer id
     :return:
-    inserts values for columns indicated
+    data from answer table by selected id
     """
-
-    query = f"""
-            INSERT INTO question (submission_time, view_number, vote_number, title, message, image)
-            VALUES ('{submission_time}',{view_number},{vote_number},'{title}','{message}','{image}')
+    query = """
+            SELECT *
+            FROM answer
+            WHERE id = %(id)s
             """
-    cursor.execute(query)
-    return "New value added"
+    args = {'id': id}
+    cursor.execute(query, args)
+    return cursor.fetchall()
 
 
 @database_common.connection_handler
-def delete_comment(cursor: RealDictCursor, comment_id: int) -> list:
-    query=f"""
-        DELETE FROM comment
-        WHERE id={comment_id}
+def get_answer_by_question_id(cursor: RealDictCursor, question_id: int) -> list:
     """
-    cursor.execute(query)
-    return "Comment deleted"
+    :param cursor:
+    RealDictCursor
+    :param question_id:
+    enter id for question_id
+    :return:
+    data from answer table by selected id
+    """
+    query = """
+            SELECT *
+            FROM answer
+            WHERE question_id = %(question_id)s
+            """
+    args = {'question_id': question_id}
+    cursor.execute(query, args)
+    return cursor.fetchall()
+
+
+@database_common.connection_handler
+def get_comment_by_id(cursor: RealDictCursor, id: int) -> list:
+    """
+    :param cursor:
+    RealDictCursor
+    :param id:
+    enter id for the comment
+    :return:
+    data from comment table by selected id
+    """
+    query = """
+            SELECT *
+            FROM comment
+            WHERE id = %(id)s
+            """
+    data = {'id': id}
+    cursor.execute(query, data)
+    return cursor.fetchall()
+
+
+
+@database_common.connection_handler
+def get_comment_by_question_id(cursor: RealDictCursor, question_id: int) -> list:
+    """
+    :param cursor:
+    RealDictCursor
+    :param question_id:
+    enter question_id for the comment
+    :return:
+    data from comment table by selected id
+    """
+    query = """
+            SELECT *
+            FROM comment
+            WHERE question_id = %(question_id)s
+            """
+    args = {'question_id': question_id}
+    cursor.execute(query, args)
+    return cursor.fetchall()
+
+
+
+@database_common.connection_handler
+def write_question(cursor: RealDictCursor, submission_time: str, view_number: int,
+                   vote_number: int, title: str, message: str, image: str) -> list:
+    """
+    :param cursor:
+    RealDictCursor
+    :param submission_time:
+    submission_time for inserting data
+    :param view_number:
+    number of views of the question
+    :param vote_number:
+    votes status of the question
+    :param title:
+    title text
+    :param message:
+    the message for the title
+    :param image:
+    url for the image
+    :return:
+    inserts values for columns indicated
+    """
+    query = """
+            INSERT INTO question (submission_time, view_number, vote_number, title, message, image)
+            VALUES (%(submission_time)s,%(view_number)s,%(vote_number)s,%(title)s,%(message)s,%(image)s)
+            """
+    args = {'submission_time': submission_time, 'view_number': view_number, 'vote_number': vote_number,
+            'title': title, 'message': message, 'image': image
+            }
+    cursor.execute(query, args)
+    return "New value added"
+
 
 @database_common.connection_handler
 def write_answer(cursor: RealDictCursor, submission_time: str, vote_number: int,
@@ -100,126 +209,234 @@ def write_answer(cursor: RealDictCursor, submission_time: str, vote_number: int,
     :param cursor:
     RealDictCursor
     :param submission_time:
-    timestamp
+    submission_time for inserting data
     :param vote_number:
-    the votes number
+    votes status of the question
     :param question_id:
-    the question id for which this answer is for (Foreign Key)
+    id of the question
     :param message:
-    The message for the answer
+    the message for the title
     :param image:
-    link for the image associated with this answer
+    url for the image
     :return:
     inserts values for columns indicated
     """
-
-    query = f"""
+    query = """
             INSERT INTO answer (submission_time, vote_number,question_id,message,image)
-            VALUES ('{submission_time}',{vote_number},{question_id},'{message}','{image}')
+            VALUES (%(submission_time)s,%(vote_number)s,%(question_id)s,%(message)s,%(image)s)
             """
-    cursor.execute(query)
+    args = {'submission_time': submission_time, 'vote_number': vote_number,
+            'question_id': question_id, 'message': message, 'image': image
+            }
+    cursor.execute(query, args)
     return "New value added"
 
-
-@database_common.connection_handler
-def update_data(cursor: RealDictCursor, table: str, column: str, value: str, id: int) -> list:
-    """
-    :param cursor:
-    RealDictCursor
-    :param table:
-    select table for the updates
-    :param value:
-    value for the update
-    :param column:
-    enter a column name to be updated with the above value
-    :param id:
-    :return:
-    """
-    query = f"""
-            UPDATE {table}
-            SET {column} = '{value}'
-            WHERE id = {id}
-            """
-
-    cursor.execute(query)
-    updated_query = f"""
-            SELECT *
-            FROM {table}
-            WHERE id = {id}
-            """
-    cursor.execute(updated_query)
-    return cursor.fetchall()
-
-@database_common.connection_handler
-def update_edit_number(cursor: RealDictCursor, value:int,id: int) -> list:
-    query=f"""
-        UPDATE comment 
-        SET edited_count={value}+1
-        WHERE id={id}
-    """
-    cursor.execute(query)
-    return "DONE"
-
-@database_common.connection_handler
-def get_edit_number(cursor: RealDictCursor,id: int) -> list:
-    query=f"""
-        SELECT edited_count
-        FROM comment
-        WHERE id={id}
-    """
-    cursor.execute(query)
-    return cursor.fetchall()
-
-@database_common.connection_handler
-def update_number(cursor: RealDictCursor, table: str, column: str, value: int, id: int) -> list:
-    """
-    :param cursor:
-    RealDictCursor
-    :param table:
-    select table for the updates
-    :param value:
-    value for the update
-    :param column:
-    enter a column name to be updated with the above value
-    :param id:
-    :return:
-    """
-    query = f"""
-            UPDATE {table}
-            SET {column} = {value}
-            WHERE id = {id}
-            """
-
-    cursor.execute(query)
-    updated_query = f"""
-            SELECT *
-            FROM {table}
-            WHERE id = {id}
-            """
-
-    cursor.execute(updated_query)
-    return cursor.fetchall()
 
 
 @database_common.connection_handler
 def write_comment(cursor: RealDictCursor, question_id: int, message: str,
                   submission_time: str, edited_count: int) -> list:
-
-    query = f"""
+    query = """
             INSERT INTO comment (question_id, message, submission_time, edited_count)
-            VALUES ({question_id},'{message}','{submission_time}',{edited_count})
+            VALUES (%(question_id)s, %(message)s, %(submission_time)s, %(edited_count)s)
             """
-    cursor.execute(query)
+    args = {'question_id': question_id, 'message': message,
+            'submission_time': submission_time, 'edited_count': edited_count
+            }
+    cursor.execute(query, args)
     return "New value added"
+
+
+
+@database_common.connection_handler
+def delete_comment(cursor: RealDictCursor, comment_id: int) -> str:
+    query = """
+        DELETE FROM comment
+        WHERE id = %(comment_id)s
+    """
+    args = {'comment_id': comment_id}
+    cursor.execute(query, args)
+    return "Comment deleted"
+
+
+
+@database_common.connection_handler
+def update_data_question(cursor: RealDictCursor, title: str, message: str, image: str, id: int) -> list:
+    """
+    :param cursor:
+    RealDictCursor
+    :param title:
+    update title
+    :param message:
+    update message
+    :param image:
+    update image
+    :param id:
+    :return:
+    """
+    query = """
+            UPDATE question
+            SET title = %(title)s, message = %(message)s, image = %(image)s
+            WHERE id = %(id)s
+            """
+    args = {'title': title, 'message': message, 'image': image, 'id': id}
+    cursor.execute(query, args)
+    updated_query = f"""
+            SELECT *
+            FROM question
+            WHERE id = %(id)s
+            """
+    args = {'id': id}
+    cursor.execute(updated_query, args)
+    return cursor.fetchall()
+
+
+@database_common.connection_handler
+def update_data_comment(cursor: RealDictCursor, message: str, id: int) -> list:
+    """
+    :param cursor:
+    RealDictCursor
+    :param message:
+    value for the message column
+    :param id:
+    id for the comment
+    :return:
+    """
+    query = """
+            UPDATE comment
+            SET message = %(message)s
+            WHERE id = %(id)s
+            """
+    args = {'message': message, 'id': id}
+    cursor.execute(query, args)
+
+    updated_query = """
+            SELECT *
+            FROM comment
+            WHERE id = %(id)s
+            """
+    args = {'id': id}
+    cursor.execute(updated_query, args)
+    return cursor.fetchall()
+
+
+@database_common.connection_handler
+def update_edit_number(cursor: RealDictCursor, edited_count: int, id: int) -> list:
+    query = """
+        UPDATE comment
+        SET edited_count = %(edited_count)s + 1
+        WHERE id = %(id)s
+    """
+    args = {'edited_count': edited_count, 'id': id}
+    cursor.execute(query, args)
+    return "DONE"
+
+
+@database_common.connection_handler
+def get_edit_number(cursor: RealDictCursor, id: int) -> list:
+    query = """
+        SELECT edited_count
+        FROM comment
+        WHERE id = %(id)s
+    """
+    args = {'id': id}
+    cursor.execute(query, args)
+    return cursor.fetchall()
+
+
+@database_common.connection_handler
+def update_view_number_qu(cursor: RealDictCursor, view_number: str, id: int) -> list:
+    """
+    :param cursor:
+    RealDictCursor
+    :param view_number:
+    new value for the the view_number
+    :param id:
+    id of the question
+    :return:
+    """
+    query = """
+            UPDATE question
+            SET view_number = %(view_number)s
+            WHERE id = %(id)s
+            """
+    args = {'view_number': view_number, 'id': id}
+    cursor.execute(query, args)
+
+    updated_query = """
+            SELECT *
+            FROM question
+            WHERE id = %(id)s
+            """
+    args = {'id': id}
+    cursor.execute(updated_query, args)
+    return cursor.fetchall()
+
+
+@database_common.connection_handler
+def update_vote_number_qu(cursor: RealDictCursor, vote_number: str, id: int) -> list:
+    """
+    :param cursor:
+    RealDictCursor
+    :param vote_number:
+    new value for the the view_number
+    :param id:
+    id of the question
+    :return:
+    """
+    query = """
+            UPDATE question
+            SET vote_number = %(vote_number)s
+            WHERE id = %(id)s
+            """
+    args = {'vote_number': vote_number, 'id': id}
+    cursor.execute(query, args)
+
+    updated_query = """
+            SELECT *
+            FROM question
+            WHERE id = %(id)s
+            """
+    args = {'vote_number': vote_number, 'id': id}
+    cursor.execute(updated_query, args)
+    return cursor.fetchall()
+
+
+@database_common.connection_handler
+def update_vote_number_an(cursor: RealDictCursor, vote_number: str, id: int) -> list:
+    """
+    :param cursor:
+    RealDictCursor
+    :param vote_number:
+    new value for the the view_number
+    :param id:
+    id of the question
+    :return:
+    """
+    query = """
+            UPDATE answer
+            SET vote_number = %(vote_number)s
+            WHERE id = %(id)s
+            """
+    args = {'vote_number': vote_number, 'id': id}
+    cursor.execute(query, args)
+    updated_query = """
+            SELECT *
+            FROM answer
+            WHERE id = %(id)s
+            """
+    args = {'id': id}
+    cursor.execute(updated_query, args)
+    return cursor.fetchall()
 
 
 @database_common.connection_handler
 def search(cursor: RealDictCursor, phrase: str) -> list:
     query = """
-            SELECT DISTINCT question.id AS id, question.submission_time AS submission_time , 
-question.view_number AS view_number, question.vote_number AS vote_number, question.title AS title, 
+            SELECT DISTINCT question.id AS id, question.submission_time AS submission_time ,
+question.view_number AS view_number, question.vote_number AS vote_number, question.title AS title,
 question.message AS message, question.image AS image, answer.id AS answer_id,
-answer.question_id AS answer_question_id, answer.submission_time AS answer_submission_time, 
+answer.question_id AS answer_question_id, answer.submission_time AS answer_submission_time,
 answer.vote_number AS answer_vote_number, answer.message AS answer_message, answer.image AS answer_image
             FROM question
             LEFT OUTER JOIN answer
@@ -235,11 +452,12 @@ answer.vote_number AS answer_vote_number, answer.message AS answer_message, answ
 
 @database_common.connection_handler
 def comment_answer(cursor: RealDictCursor, answer_id: int, message: str, submission_time: str, edited_count: int) -> list:
-    query = f"""
+    query = """
             INSERT INTO comment (answer_id, message,submission_time,edited_count)
-            VALUES ({answer_id},'{message}','{submission_time}',{edited_count})
+            VALUES (%(answer_id)s,%(message)s,%(submission_time)s,%(edited_count)s)
             """
-    cursor.execute(query)
+    args = {'answer_id': answer_id, 'message': message, 'submission_time': submission_time, 'edited_count': edited_count }
+    cursor.execute(query, args)
     return "New value added"
 
 
@@ -256,23 +474,25 @@ def get_latest_questions(cursor: RealDictCursor) -> list:
 
 @database_common.connection_handler
 def update_question_tags(cursor: RealDictCursor, question_id: int, tag_id: int) -> list:
-    query = f"""
-        INSERT INTO question_tag
-        VALUES ({question_id},{tag_id})
+    query = """
+        INSERT INTO question_tag (question_id, tag_id)
+        VALUES (%(question_id)s, %(tag_id)s)
     """
-    cursor.execute(query)
+    args = {'question_id': question_id, 'tag_id': tag_id}
+    cursor.execute(query, args)
     return "Tags Updated"
 
 
 @database_common.connection_handler
 def tags(cursor: RealDictCursor, question_id: int) -> list:
-    query = f"""
+    query = """
             SELECT question_tag.question_id,question_tag.tag_id,tag.name
             FROM question_tag JOIN tag
             ON question_tag.tag_id=tag.id
-            WHERE question_tag.question_id={question_id}
+            WHERE question_tag.question_id = %(question_id)s
             """
-    cursor.execute(query)
+    args = {'question_id':  question_id}
+    cursor.execute(query, args)
     return cursor.fetchall()
 
 
@@ -288,19 +508,21 @@ def get_all_tags(cursor: RealDictCursor) -> list:
 
 @database_common.connection_handler
 def delete_tag(cursor: RealDictCursor, question_id: int, tag_id: int) -> list:
-    query = f"""
+    query = """
         DELETE FROM question_tag
-        WHERE question_id={question_id} AND tag_id={tag_id}
+        WHERE question_id = %(question_id)s AND tag_id = %(tag_id)s
     """
-    cursor.execute(query)
+    args = {'question_id': question_id, 'tag_id': tag_id}
+    cursor.execute(query, args)
     return "Tag deleted"
 
 
 @database_common.connection_handler
-def add_new_tag(cursor: RealDictCursor,new_tag:str) -> list:
-    query = f"""
+def add_new_tag(cursor: RealDictCursor, new_tag: str) -> list:
+    query = """ 
         INSERT INTO tag (name)
-        VALUES ('{new_tag}')
+        VALUES (%(new_tag)s)
     """
-    cursor.execute(query)
+    args = {'new_tag': new_tag}
+    cursor.execute(query, args)
     return "DONE"
